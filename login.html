@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login SmartKos</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #121212; color: white; }
+        .login-card { background: #1e1e1e; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        input { display: block; width: 100%; margin: 10px 0; padding: 10px; border-radius: 4px; border: none; }
+        button { width: 100%; padding: 10px; background: #f39c12; border: none; color: white; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Login SmartKos</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="btnLogin">Masuk</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // TEMPELKAN firebaseConfig kamu di sini
+        const firebaseConfig = {
+          apiKey: "AIzaSyCniLIgUlE3jM3WVQUk-AUR-_d9Q-2ctXc",
+          authDomain: "smartkos-cb3ac.firebaseapp.com",
+          databaseURL: "https://smartkos-cb3ac-default-rtdb.firebaseio.com",
+          projectId: "smartkos-cb3ac",
+          storageBucket: "smartkos-cb3ac.firebasestorage.app",
+          messagingSenderId: "327501663967",
+          appId: "1:327501663967:web:6a2ada9421a95d90faa36a",
+          measurementId: "G-9J4B821KT8"
+  };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('btnLogin').onclick = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then(() => {
+                    window.location.href = "index.html"; 
+                })
+                .catch((error) => {
+                    alert("Akses ditolak: " + error.message);
+                });
+        };
+    </script>
+</body>
+</html>
