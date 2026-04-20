@@ -23,6 +23,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
 .mat-filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
 
+/* Auth Guard Overlay */
+#auth-guard{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+#auth-guard .guard-inner{text-align:center;display:flex;flex-direction:column;align-items:center;gap:1rem}
+#auth-guard .guard-spinner{width:2.5rem;height:2.5rem;border-radius:50%;border:3px solid var(--outline-variant);border-top-color:var(--primary);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#auth-guard .guard-label{font-size:.85rem;color:var(--outline);font-weight:500}
+
 /* Header */
 .top-bar{position:sticky;top:0;z-index:50;background:var(--surface);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
 .top-bar-left{display:flex;align-items:center;gap:0.75rem}
@@ -30,9 +37,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .avatar .material-symbols-outlined{font-size:1.5rem;color:var(--primary)}
 .top-bar-info .label{font-size:10px;color:var(--outline);text-transform:uppercase;letter-spacing:0.15em;font-weight:700}
 .top-bar-info h1{font-size:1.1rem;font-weight:600;color:var(--primary);margin-top:2px}
+.top-bar-right{display:flex;align-items:center;gap:.5rem}
 .notif-btn{width:2.5rem;height:2.5rem;border-radius:var(--radius-sm);background:var(--surface-highest);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
 .notif-btn:active{transform:scale(.95)}
 .notif-btn .material-symbols-outlined{color:var(--primary);font-size:1.3rem}
+.logout-btn{width:2.5rem;height:2.5rem;border-radius:var(--radius-sm);background:rgba(255,113,108,.1);border:1px solid rgba(255,113,108,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.logout-btn:active{transform:scale(.95)}
+.logout-btn .material-symbols-outlined{color:var(--error);font-size:1.3rem}
 
 /* Main */
 main{padding:1rem 1.5rem;max-width:480px;margin:0 auto}
@@ -117,10 +128,6 @@ main{padding:1rem 1.5rem;max-width:480px;margin:0 auto}
 .alarm-icon-circle{width:2.5rem;height:2.5rem;border-radius:50%;background:rgba(130,174,255,.2);display:flex;align-items:center;justify-content:center}
 .alarm-icon-circle .material-symbols-outlined{color:var(--primary);font-size:1.2rem}
 .alarm-header h2{font-weight:700;font-size:1.1rem}
-.alarm-time-display{display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem}
-.alarm-time-display .big-digit{font-size:2.5rem;font-weight:800}
-.alarm-time-display .colon{font-size:1.5rem;font-weight:700;color:var(--outline)}
-.alarm-time-display .ampm{background:var(--surface-highest);padding:4px 12px;border-radius:var(--radius-sm);font-size:.75rem;font-weight:700;color:var(--primary)}
 input[type="time"]{appearance:none;-webkit-appearance:none;display:block;width:100%;max-width:100%;box-sizing:border-box !important;background:var(--surface-highest);border:1px solid var(--outline-variant);border-radius:var(--radius-md);padding:.75rem 1rem;color:var(--on-surface);font-size:1.2rem;font-weight:700;font-family:'Plus Jakarta Sans';text-align:center;letter-spacing:2px;margin-bottom:1rem;transition:border .2s}
 input[type="time"]:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(130,174,255,.15)}
 input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer}
@@ -166,8 +173,6 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 .sch-action-btn{width:2.25rem;height:2.25rem;border-radius:var(--radius-sm);border:1px solid var(--outline-variant);background:var(--surface-highest);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
 .sch-action-btn:active{transform:scale(.9)}
 .sch-action-btn .material-symbols-outlined{font-size:1rem}
-.sch-action-btn.edit-btn{color:var(--primary)}
-.sch-action-btn.edit-btn:hover{background:rgba(130,174,255,.15);border-color:var(--primary)}
 .sch-action-btn.del-btn{color:var(--error)}
 .sch-action-btn.del-btn:hover{background:rgba(255,113,108,.1);border-color:var(--error)}
 .sch-action-btn.play-btn{color:var(--tertiary-bright)}
@@ -184,18 +189,52 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 .nav-item .nav-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.15em}
 .nav-item.active{color:var(--primary);opacity:1;background:rgba(130,174,255,.1);box-shadow:0 0 20px rgba(130,174,255,.15)}
 
-/* Animations */
+/* User email chip */
+.user-chip{display:flex;align-items:center;gap:.4rem;padding:.3rem .75rem;background:rgba(130,174,255,.08);border:1px solid rgba(130,174,255,.15);border-radius:999px;max-width:140px;overflow:hidden}
+.user-chip span{font-size:.7rem;color:var(--on-surface-variant);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.user-chip .material-symbols-outlined{font-size:.9rem;color:var(--primary);flex-shrink:0}
+
 @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fadeIn .5s ease forwards}
 
-/* Responsive */
 @media(max-width:420px){
 .clock-hero .time{font-size:3rem}
 .schedule-hero .big-time{font-size:2.8rem}
 }
 </style>
-</head><body>
+</head>
+<body>
 
+<!-- Auth Guard: shown while checking login state -->
+<div id="auth-guard">
+  <div class="guard-inner">
+    <div class="guard-spinner"></div>
+    <span class="guard-label">Memeriksa sesi...</span>
+  </div>
+</div>
+
+<!-- App Shell (hidden until auth confirmed) -->
+<div id="app-shell" style="display:none">
+
+<!-- Top Bar -->
+<header class="top-bar">
+  <div class="top-bar-left">
+    <div class="avatar"><span class="material-symbols-outlined mat-filled">person</span></div>
+    <div class="top-bar-info">
+      <p class="label">Smart Kos</p>
+      <h1 id="user-display">Dashboard</h1>
+    </div>
+  </div>
+  <div class="top-bar-right">
+    <div class="user-chip">
+      <span class="material-symbols-outlined">shield_person</span>
+      <span id="user-email-chip">--</span>
+    </div>
+    <button class="logout-btn" onclick="logoutUser()" title="Logout">
+      <span class="material-symbols-outlined">logout</span>
+    </button>
+  </div>
+</header>
 
 <main>
 <!-- HOME TAB -->
@@ -220,7 +259,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 <section class="fade-in" style="animation-delay:.2s">
 <div class="section-title" style="margin-bottom:.75rem">
 <h2>Jadwal Sholat</h2>
-<span> Kota Surabaya</span>
+<span>Kota Surabaya</span>
 </div>
 <div id="sholat-content"><div class="weather-loading">Memuat jadwal sholat...</div></div>
 </section>
@@ -229,7 +268,6 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 <section class="fade-in" style="animation-delay:.3s">
 <div class="section-title" style="margin-bottom:.75rem"><h2>Smart Controls</h2></div>
 <div class="controls-grid">
-<!-- Lampu -->
 <div class="control-card">
 <div class="control-top">
 <div class="control-icon lamp"><span class="material-symbols-outlined mat-filled">lightbulb</span></div>
@@ -241,7 +279,6 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 <button class="ctrl-btn off-idle" onclick="kirimLampu('OFF')" id="btn-off" disabled>OFF</button>
 </div>
 </div>
-<!-- Kipas -->
 <div class="control-card">
 <div class="control-top">
 <div class="control-icon fan"><span class="material-symbols-outlined">mode_fan</span></div>
@@ -280,7 +317,6 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 <div class="tab-content" id="tab-schedule">
 <div class="section-gap">
 
-<!-- Next Alarm Hero -->
 <section class="schedule-hero fade-in">
 <div class="glass-bg"></div>
 <div class="ghost-icon"><span class="material-symbols-outlined">alarm</span></div>
@@ -294,7 +330,6 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 </div>
 </section>
 
-<!-- Add Schedule -->
 <section class="fade-in" style="animation-delay:.1s">
 <div class="section-title" style="margin-bottom:.75rem"><h2>Tambah Alarm</h2></div>
 <div class="schedule-add-form">
@@ -303,7 +338,6 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 </div>
 </section>
 
-<!-- Schedule List -->
 <section class="fade-in" style="animation-delay:.2s">
 <div class="section-title" style="margin-bottom:.75rem"><h2>Daftar Alarm</h2><span id="schedule-count">0 alarm</span></div>
 <div id="schedule-list-container"></div>
@@ -326,37 +360,88 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 </button>
 </div>
 </nav>
+
+</div><!-- end #app-shell -->
+
+<!-- ═══════════════════════════════════════════════════
+     FIREBASE AUTH — ganti firebaseConfig dengan milikmu
+     ═══════════════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  // ⚠️  GANTI dengan config Firebase project kamu
+  const firebaseConfig = {
+    apiKey: "GANTI_API_KEY",
+    authDomain: "GANTI_AUTH_DOMAIN",
+    projectId: "GANTI_PROJECT_ID",
+    storageBucket: "GANTI_STORAGE_BUCKET",
+    messagingSenderId: "GANTI_SENDER_ID",
+    appId: "GANTI_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Expose logout ke window agar bisa dipanggil dari onclick
+  window.logoutUser = async () => {
+    if (!confirm('Yakin ingin logout?')) return;
+    try {
+      await signOut(auth);
+      // onAuthStateChanged akan mendeteksi null dan redirect
+    } catch (e) {
+      alert('Gagal logout: ' + e.message);
+    }
+  };
+
+  // ── Auth Guard ──
+  onAuthStateChanged(auth, (user) => {
+    const guard = document.getElementById('auth-guard');
+    const shell = document.getElementById('app-shell');
+
+    if (user) {
+      // ✅ User login — tampilkan app, sembunyikan guard
+      guard.style.display = 'none';
+      shell.style.display = 'block';
+
+      // Tampilkan email di header
+      const email = user.email || 'User';
+      const displayName = email.split('@')[0];
+      document.getElementById('user-display').innerText = displayName;
+      document.getElementById('user-email-chip').innerText = email;
+
+    } else {
+      // ❌ Tidak ada sesi — redirect ke login
+      window.location.href = 'login.html';
+    }
+  });
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     APP LOGIC (sama seperti sebelumnya)
+     ═══════════════════════════════════════════════ -->
 <script>
-// â”€â”€ Tab Switching â”€â”€
 function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('nav-' + tab).classList.add('active');
 }
-
-// â”€â”€ UI Helpers â”€â”€
 function setLampuUI(state) {
   const dot = document.getElementById('status-lampu-dot');
   const btnOn = document.getElementById('btn-on');
   const btnOff = document.getElementById('btn-off');
   dot.className = 'status-dot ' + (state === 'ON' ? 'on' : 'off');
-  if (state === 'ON') {
-    btnOn.className = 'ctrl-btn on-active'; btnOff.className = 'ctrl-btn off-idle';
-  } else {
-    btnOn.className = 'ctrl-btn on-idle'; btnOff.className = 'ctrl-btn off-active';
-  }
+  if (state === 'ON') { btnOn.className='ctrl-btn on-active'; btnOff.className='ctrl-btn off-idle'; }
+  else { btnOn.className='ctrl-btn on-idle'; btnOff.className='ctrl-btn off-active'; }
 }
 function setKipasUI(state) {
   const dot = document.getElementById('status-kipas-dot');
   const btnOn = document.getElementById('btn-kipas-on');
   const btnOff = document.getElementById('btn-kipas-off');
   dot.className = 'status-dot ' + (state === 'ON' ? 'on' : 'off');
-  if (state === 'ON') {
-    btnOn.className = 'ctrl-btn on-active'; btnOff.className = 'ctrl-btn off-idle';
-  } else {
-    btnOn.className = 'ctrl-btn on-idle'; btnOff.className = 'ctrl-btn off-active';
-  }
+  if (state === 'ON') { btnOn.className='ctrl-btn on-active'; btnOff.className='ctrl-btn off-idle'; }
+  else { btnOn.className='ctrl-btn on-idle'; btnOff.className='ctrl-btn off-active'; }
 }
 let isInitialKipasSetup = false;
 function setKipasStatus(state, save) {
@@ -364,7 +449,6 @@ function setKipasStatus(state, save) {
   setKipasUI(s);
   if (save) localStorage.setItem('statusKipas', s);
 }
-
 function kirimLampu(state) {
   if (!client.connected) { alert('Koneksi terputus.'); return; }
   client.publish('smartkos/lampu', state);
@@ -376,7 +460,6 @@ function kirimKipas(state) {
   client.publish('smartkos/kipas', state);
   setKipasStatus(state, true);
 }
-
 function syncAlarmUI(waktu, isActive) {
   const dotEl = document.getElementById('alarm-dot');
   const textEl = document.getElementById('alarm-status-text');
@@ -390,7 +473,6 @@ function syncAlarmUI(waktu, isActive) {
     if (textEl) textEl.innerText = 'Alarm Mati';
   }
 }
-
 function setAlarm(silent = false) {
   const waktu = document.getElementById('waktu-alarm').value;
   if (!waktu) { if(!silent) alert('Silakan pilih waktu alarm'); return; }
@@ -405,67 +487,26 @@ function nonaktifkanAlarm(silent = false) {
   localStorage.removeItem('alarmWaktu');
   syncAlarmUI(null, false);
 }
-// --- Schedule Alarm Functions ---
 let schedules = JSON.parse(localStorage.getItem('alarmSchedules') || '[]');
-
-function saveSchedules() {
-  localStorage.setItem('alarmSchedules', JSON.stringify(schedules));
-  renderSchedules();
-  updateNextAlarm();
-}
-
+function saveSchedules() { localStorage.setItem('alarmSchedules', JSON.stringify(schedules)); renderSchedules(); updateNextAlarm(); }
 function addSchedule() {
   const time = document.getElementById('schedule-time-input').value;
   if (!time) { alert('Pilih waktu terlebih dahulu!'); return; }
-  
-  if (schedules.some(s => s.time === time)) {
-    alert('Jadwal untuk waktu ini sudah ada!'); return;
-  }
-  
-  schedules.push({
-    id: 'sch_' + Date.now(),
-    time: time,
-    active: true
-  });
-  
-  // Save and sort
+  if (schedules.some(s => s.time === time)) { alert('Jadwal untuk waktu ini sudah ada!'); return; }
+  schedules.push({ id: 'sch_' + Date.now(), time: time, active: true });
   schedules.sort((a, b) => a.time.localeCompare(b.time));
   saveSchedules();
 }
-
-function toggleSchedule(id) {
-  const sch = schedules.find(s => s.id === id);
-  if (sch) {
-    sch.active = !sch.active;
-    saveSchedules();
-    updateNextAlarm();
-  }
-}
-
-function removeSchedule(id) {
-  schedules = schedules.filter(s => s.id !== id);
-  saveSchedules();
-  updateNextAlarm();
-}
-
+function toggleSchedule(id) { const sch = schedules.find(s => s.id === id); if (sch) { sch.active = !sch.active; saveSchedules(); updateNextAlarm(); } }
+function removeSchedule(id) { schedules = schedules.filter(s => s.id !== id); saveSchedules(); updateNextAlarm(); }
 function renderSchedules() {
   const container = document.getElementById('schedule-list-container');
   const countEl = document.getElementById('schedule-count');
-  
   if (!container || !countEl) return;
-  
   countEl.innerText = schedules.length + ' alarm';
-  
   if (schedules.length === 0) {
-    container.innerHTML = `
-      <div class="schedule-empty">
-        <span class="material-symbols-outlined">schedule</span>
-        Belum ada jadwal tersimpan.<br>Tambah jadwal di atas.
-      </div>
-    `;
-    return;
+    container.innerHTML = '<div class="schedule-empty"><span class="material-symbols-outlined">schedule</span>Belum ada jadwal tersimpan.<br>Tambah jadwal di atas.</div>'; return;
   }
-  
   container.innerHTML = schedules.map(sch => `
     <div class="schedule-item ${sch.active ? 'active-schedule' : ''}">
       <div class="schedule-item-left">
@@ -486,56 +527,37 @@ function renderSchedules() {
     </div>
   `).join('');
 }
-
 function updateNextAlarm() {
   const activeSchedules = schedules.filter(s => s.active);
   const heroTime = document.getElementById('schedule-alarm-time');
   const heroStatus = document.getElementById('schedule-alarm-status');
-  
   if (activeSchedules.length === 0) {
     if (heroTime) heroTime.innerHTML = '--:--<span class="ampm">WIB</span>';
     if (heroStatus) heroStatus.innerHTML = '<span class="material-symbols-outlined mat-filled" style="font-size:14px">info</span><span>Belum ada jadwal aktif</span>';
-    if (typeof client !== 'undefined' && client.connected) {
-       client.publish('smartkos/alarm', 'SCH_OFF');
-    }
+    if (typeof client !== 'undefined' && client.connected) client.publish('smartkos/alarm', 'SCH_OFF');
     return;
   }
-  
   const now = new Date();
   const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-  
   let nextAlarm = activeSchedules.find(s => s.time > currentTime);
   if (!nextAlarm) nextAlarm = activeSchedules[0];
-  
   if (heroTime) heroTime.innerHTML = nextAlarm.time + '<span class="ampm">WIB</span>';
   if (heroStatus) heroStatus.innerHTML = '<span class="material-symbols-outlined mat-filled" style="font-size:14px;color:var(--tertiary)">check_circle</span><span style="color:var(--tertiary)">Alarm Aktif</span>';
-  
-  if (typeof client !== 'undefined' && client.connected) {
-     client.publish('smartkos/alarm', "SCH_" + nextAlarm.time);
-  }
+  if (typeof client !== 'undefined' && client.connected) client.publish('smartkos/alarm', "SCH_" + nextAlarm.time);
 }
 
-// ——— Init LocalStorage ———
-if (localStorage.getItem('versi') !== '3') {
-  localStorage.removeItem('statusKipas');
-  localStorage.removeItem('alarmWaktu');
-  localStorage.removeItem('alarmSkipDate');
-  localStorage.setItem('versi', '3');
-}
+// Init LocalStorage
+if (localStorage.getItem('versi') !== '3') { localStorage.removeItem('statusKipas'); localStorage.removeItem('alarmWaktu'); localStorage.removeItem('alarmSkipDate'); localStorage.setItem('versi', '3'); }
 const savedLampu = localStorage.getItem('statusLampu');
 if (savedLampu) setLampuUI(savedLampu);
-if (localStorage.getItem('statusKipas') === null) {
-  localStorage.setItem('statusKipas', 'ON');
-  isInitialKipasSetup = true;
-}
+if (localStorage.getItem('statusKipas') === null) { localStorage.setItem('statusKipas', 'ON'); isInitialKipasSetup = true; }
 setKipasStatus(localStorage.getItem('statusKipas'), false);
 
-// â”€â”€ MQTT â”€â”€
+// MQTT
 const broker = 'wss://276d9e54084e4a99b7b863492b06212b.s1.eu.hivemq.cloud:8884/mqtt';
 const options = { username: 'Rafifirdaus', password: '@Gresik123', clientId: 'webClient_' + Math.random().toString(16).substr(2, 8) };
 const client = mqtt.connect(broker, options);
-const allBtns = ['btn-on','btn-off','btn-kipas-on','btn-kipas-off','btn-set','btn-nonaktif','btn-set-2','btn-nonaktif-2'];
-
+const allBtns = ['btn-on','btn-off','btn-kipas-on','btn-kipas-off','btn-set','btn-nonaktif'];
 client.on('connect', () => {
   allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; });
   client.subscribe('smartkos/status');
@@ -546,20 +568,15 @@ client.on('error', () => { allBtns.forEach(id => { const el = document.getElemen
 client.on('message', (topic, message) => {
   if (topic !== 'smartkos/status') return;
   const statusAlarm = message.toString();
-  if (statusAlarm === 'ALARM_HOME_BUNYI') {
-    setKipasStatus('OFF', true);
-  } else if (statusAlarm === 'ALARM_SCH_BUNYI') {
-    setKipasStatus('ON', true);
-  }
+  if (statusAlarm === 'ALARM_HOME_BUNYI') { setKipasStatus('OFF', true); }
+  else if (statusAlarm === 'ALARM_SCH_BUNYI') { setKipasStatus('ON', true); }
 });
 
-// Render schedules on load
-renderSchedules();
-updateNextAlarm();
+renderSchedules(); updateNextAlarm();
 const savedAlarm = localStorage.getItem('alarmWaktu');
 if (savedAlarm) { syncAlarmUI(savedAlarm, true); }
 
-// ——— Clock ———
+// Clock
 let prevDigits = ['','','','','',''];
 function updateJam() {
   const now = new Date();
@@ -577,7 +594,7 @@ function updateJam() {
 }
 setInterval(updateJam, 1000); updateJam();
 
-// ——— Weather ———
+// Weather
 const WEATHER_KEY = 'fcf807bd760344b5a57124817261204';
 const CUACA_URL = 'https://api.weatherapi.com/v1/current.json?key=' + WEATHER_KEY + '&q=Surabaya&lang=id';
 function weatherIcon(code, isDay) {
@@ -614,7 +631,7 @@ async function ambilCuaca() {
 }
 ambilCuaca(); setInterval(ambilCuaca, 10 * 60 * 1000);
 
-// â”€â”€ Prayer Times â”€â”€
+// Prayer Times
 let sholatData = [];
 function hitungSholat() {
   const LAT=-7.2575,LON=112.7521,TZ=7,FAJR_ANG=20,ISHA_ANG=18;
@@ -646,8 +663,7 @@ function tampilSholat() {
     const idxNext = (idxAktif+1) % sholatData.length;
     const cards = sholatData.map((s,i) => {
       const active = i === idxAktif, next = i === idxNext;
-      let cls = 'prayer-card';
-      let badge = '';
+      let cls = 'prayer-card', badge = '';
       if (active) { cls += ' aktif'; badge = '<div class="prayer-badge">Sekarang</div>'; }
       else if (next) { cls += ' berikutnya'; badge = '<div class="prayer-badge">Berikutnya</div>'; }
       return '<div class="'+cls+'">'+badge+'<p class="p-name">'+s.nama+'</p><p class="p-time">'+s.waktu+'</p></div>';
