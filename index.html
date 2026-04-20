@@ -216,25 +216,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 <!-- App Shell (hidden until auth confirmed) -->
 <div id="app-shell" style="display:none">
 
-<!-- Top Bar -->
-<header class="top-bar">
-  <div class="top-bar-left">
-    <div class="avatar"><span class="material-symbols-outlined mat-filled">person</span></div>
-    <div class="top-bar-info">
-      <p class="label">Smart Kos</p>
-      <h1 id="user-display">Dashboard</h1>
-    </div>
-  </div>
-  <div class="top-bar-right">
-    <div class="user-chip">
-      <span class="material-symbols-outlined">shield_person</span>
-      <span id="user-email-chip">--</span>
-    </div>
-    <button class="logout-btn" onclick="logoutUser()" title="Logout">
-      <span class="material-symbols-outlined">logout</span>
-    </button>
-  </div>
-</header>
+
 
 <main>
 <!-- HOME TAB -->
@@ -345,6 +327,32 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 
 </div>
 </div>
+
+<!-- PROFILE TAB -->
+<div class="tab-content" id="tab-profile">
+<div class="section-gap">
+
+<section class="schedule-hero fade-in">
+<div class="glass-bg"></div>
+<div class="ghost-icon"><span class="material-symbols-outlined">person</span></div>
+<div class="content" style="text-align: center; display: flex; flex-direction: column; align-items: center; padding: 2rem 0;">
+  <div class="avatar" style="width: 6rem; height: 6rem; margin-bottom: 1.5rem; border-width: 3px;">
+    <span class="material-symbols-outlined mat-filled" style="font-size: 3.5rem;">person</span>
+  </div>
+  <h2 id="profile-user-display" style="font-size: 2rem; font-weight: 800; color: var(--on-surface); margin-bottom: 0.5rem; letter-spacing: -0.5px;">User</h2>
+  <div class="user-chip" style="margin: 0 auto 3rem; max-width: none; border: none; background: rgba(255,255,255,.05); padding: 0.5rem 1rem;">
+    <span class="material-symbols-outlined" style="font-size: 1.2rem;">mail</span>
+    <span id="profile-user-email-chip" style="font-size: .95rem;">--</span>
+  </div>
+  
+  <button class="alarm-btn off" onclick="logoutUser()" style="width: 100%; max-width: 250px; margin: 0 auto; background: rgba(255,113,108,.1); color: var(--error); border: 1px solid rgba(255,113,108,.2); padding: 1.25rem; font-size: 1rem; border-radius: var(--radius-xl);">
+    <span class="material-symbols-outlined">logout</span> Logout
+  </button>
+</div>
+</section>
+
+</div>
+</div>
 </main>
 
 <!-- Bottom Nav -->
@@ -357,6 +365,10 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 <button class="nav-item" onclick="switchTab('schedule')" id="nav-schedule">
 <span class="material-symbols-outlined">alarm</span>
 <span class="nav-label">Alarm</span>
+</button>
+<button class="nav-item" onclick="switchTab('profile')" id="nav-profile">
+<span class="material-symbols-outlined">person</span>
+<span class="nav-label">Profile</span>
 </button>
 </div>
 </nav>
@@ -411,8 +423,8 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
       const email = user.email || 'User';
       const displayName = email.split('@')[0];
       
-      const userDisplay = document.getElementById('user-display');
-      const emailChip = document.getElementById('user-email-chip');
+      const userDisplay = document.getElementById('profile-user-display');
+      const emailChip = document.getElementById('profile-user-email-chip');
       
       if (userDisplay) userDisplay.innerText = displayName;
       if (emailChip) emailChip.innerText = email;
