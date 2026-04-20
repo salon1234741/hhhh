@@ -385,10 +385,11 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 
   // Expose logout ke window agar bisa dipanggil dari onclick
   window.logoutUser = async () => {
-    if (!confirm('Yakin ingin logout?')) return;
+    if (!confirm('Yakin ingin keluar?')) return;
     try {
       await signOut(auth);
-      // onAuthStateChanged akan mendeteksi null dan redirect
+      // Setelah ini, onAuthStateChanged akan otomatis mendeteksi status null 
+      // dan mengarahkan ke login.html
     } catch (e) {
       alert('Gagal logout: ' + e.message);
     }
@@ -401,18 +402,23 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 
     if (user) {
       // ✅ User login — tampilkan app, sembunyikan guard
-      guard.style.display = 'none';
-      shell.style.display = 'block';
+      if (guard) guard.style.display = 'none';
+      if (shell) shell.style.display = 'block';
 
-      // Tampilkan email di header
+      // Tampilkan info user
       const email = user.email || 'User';
       const displayName = email.split('@')[0];
-      document.getElementById('user-display').innerText = displayName;
-      document.getElementById('user-email-chip').innerText = email;
+      
+      const userDisplay = document.getElementById('user-display');
+      const emailChip = document.getElementById('user-email-chip');
+      
+      if (userDisplay) userDisplay.innerText = displayName;
+      if (emailChip) emailChip.innerText = email;
 
     } else {
-      // ❌ Tidak ada sesi — redirect ke login
-      window.location.href = 'login.html';
+      // ❌ Tidak ada sesi — langsung redirect
+      window.location.replace('login.html'); 
+      // Pakai .replace agar user tidak bisa klik "Back" kembali ke dashboard
     }
   });
 </script>
