@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Kos Dashboard</title>
-<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 <style>
@@ -428,6 +427,12 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
       if (userDisplay) userDisplay.innerText = displayName;
       if (emailChip) emailChip.innerText = email;
 
+      if (typeof window.initializeDashboardApp === 'function') {
+        window.initializeDashboardApp();
+      } else {
+        window.__bootDashboard = true;
+      }
+
     } else {
       // ❌ Tidak ada sesi — langsung redirect
       window.location.replace('login.html'); 
@@ -440,6 +445,25 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
      APP LOGIC (sama seperti sebelumnya)
      ═══════════════════════════════════════════════ -->
 <script>
+let client = null;
+let dashboardInitPromise = null;
+
+function ensureMqttLoaded() {
+  if (window.mqtt) return Promise.resolve();
+  if (window.__mqttLoadPromise) return window.__mqttLoadPromise;
+
+  window.__mqttLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/mqtt/dist/mqtt.min.js';
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error('Gagal memuat library MQTT.'));
+    document.head.appendChild(script);
+  });
+
+  return window.__mqttLoadPromise;
+}
+
 function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -469,13 +493,13 @@ function setKipasStatus(state, save) {
   if (save) localStorage.setItem('statusKipas', s);
 }
 function kirimLampu(state) {
-  if (!client.connected) { alert('Koneksi terputus.'); return; }
+  if (!client || !client.connected) { alert('Koneksi terputus.'); return; }
   client.publish('smartkos/lampu', state);
   localStorage.setItem('statusLampu', state);
   setLampuUI(state);
 }
 function kirimKipas(state) {
-  if (!client.connected) { alert('Koneksi terputus.'); return; }
+  if (!client || !client.connected) { alert('Koneksi terputus.'); return; }
   client.publish('smartkos/kipas', state);
   setKipasStatus(state, true);
 }
@@ -495,13 +519,13 @@ function syncAlarmUI(waktu, isActive) {
 function setAlarm(silent = false) {
   const waktu = document.getElementById('waktu-alarm').value;
   if (!waktu) { if(!silent) alert('Silakan pilih waktu alarm'); return; }
-  if (typeof client === 'undefined' || !client.connected) { if(!silent) alert('Koneksi terputus.'); return; }
+  if (!client || !client.connected) { if(!silent) alert('Koneksi terputus.'); return; }
   client.publish('smartkos/alarm', "HOME_" + waktu);
   localStorage.setItem('alarmWaktu', waktu);
   syncAlarmUI(waktu, true);
 }
 function nonaktifkanAlarm(silent = false) {
-  if (typeof client === 'undefined' || !client.connected) { if(!silent) alert('Koneksi terputus.'); return; }
+  if (!client || !client.connected) { if(!silent) alert('Koneksi terputus.'); return; }
   client.publish('smartkos/alarm', 'HOME_OFF');
   localStorage.removeItem('alarmWaktu');
   syncAlarmUI(null, false);
@@ -553,7 +577,7 @@ function updateNextAlarm() {
   if (activeSchedules.length === 0) {
     if (heroTime) heroTime.innerHTML = '--:--<span class="ampm">WIB</span>';
     if (heroStatus) heroStatus.innerHTML = '<span class="material-symbols-outlined mat-filled" style="font-size:14px">info</span><span>Belum ada jadwal aktif</span>';
-    if (typeof client !== 'undefined' && client.connected) client.publish('smartkos/alarm', 'SCH_OFF');
+    if (client && client.connected) client.publish('smartkos/alarm', 'SCH_OFF');
     return;
   }
   const now = new Date();
@@ -562,38 +586,8 @@ function updateNextAlarm() {
   if (!nextAlarm) nextAlarm = activeSchedules[0];
   if (heroTime) heroTime.innerHTML = nextAlarm.time + '<span class="ampm">WIB</span>';
   if (heroStatus) heroStatus.innerHTML = '<span class="material-symbols-outlined mat-filled" style="font-size:14px;color:var(--tertiary)">check_circle</span><span style="color:var(--tertiary)">Alarm Aktif</span>';
-  if (typeof client !== 'undefined' && client.connected) client.publish('smartkos/alarm', "SCH_" + nextAlarm.time);
+  if (client && client.connected) client.publish('smartkos/alarm', "SCH_" + nextAlarm.time);
 }
-
-// Init LocalStorage
-if (localStorage.getItem('versi') !== '3') { localStorage.removeItem('statusKipas'); localStorage.removeItem('alarmWaktu'); localStorage.removeItem('alarmSkipDate'); localStorage.setItem('versi', '3'); }
-const savedLampu = localStorage.getItem('statusLampu');
-if (savedLampu) setLampuUI(savedLampu);
-if (localStorage.getItem('statusKipas') === null) { localStorage.setItem('statusKipas', 'ON'); isInitialKipasSetup = true; }
-setKipasStatus(localStorage.getItem('statusKipas'), false);
-
-// MQTT
-const broker = 'wss://276d9e54084e4a99b7b863492b06212b.s1.eu.hivemq.cloud:8884/mqtt';
-const options = { username: 'Rafifirdaus', password: '@Gresik123', clientId: 'webClient_' + Math.random().toString(16).substr(2, 8) };
-const client = mqtt.connect(broker, options);
-const allBtns = ['btn-on','btn-off','btn-kipas-on','btn-kipas-off','btn-set','btn-nonaktif'];
-client.on('connect', () => {
-  allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; });
-  client.subscribe('smartkos/status');
-  if (isInitialKipasSetup) { client.publish('smartkos/kipas', 'ON'); isInitialKipasSetup = false; }
-});
-client.on('disconnect', () => { allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; }); });
-client.on('error', () => { allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; }); });
-client.on('message', (topic, message) => {
-  if (topic !== 'smartkos/status') return;
-  const statusAlarm = message.toString();
-  if (statusAlarm === 'ALARM_HOME_BUNYI') { setKipasStatus('OFF', true); }
-  else if (statusAlarm === 'ALARM_SCH_BUNYI') { setKipasStatus('ON', true); }
-});
-
-renderSchedules(); updateNextAlarm();
-const savedAlarm = localStorage.getItem('alarmWaktu');
-if (savedAlarm) { syncAlarmUI(savedAlarm, true); }
 
 // Clock
 let prevDigits = ['','','','','',''];
@@ -611,7 +605,6 @@ function updateJam() {
   const tgl = new Intl.DateTimeFormat('id-ID', { timeZone:'Asia/Jakarta', weekday:'long', day:'numeric', month:'long', year:'numeric' }).format(now);
   document.getElementById('tanggal').innerText = tgl;
 }
-setInterval(updateJam, 1000); updateJam();
 
 // Weather
 const WEATHER_KEY = 'fcf807bd760344b5a57124817261204';
@@ -648,7 +641,6 @@ async function ambilCuaca() {
     el.innerHTML = '<div class="weather-loading" style="color:var(--error)">Gagal memuat cuaca.</div>';
   }
 }
-ambilCuaca(); setInterval(ambilCuaca, 10 * 60 * 1000);
 
 // Prayer Times
 let sholatData = [];
@@ -690,7 +682,85 @@ function tampilSholat() {
     el.innerHTML = '<div class="prayer-scroll">'+cards+'</div>';
   } catch(e) { el.innerHTML = '<div class="weather-loading" style="color:var(--error)">Gagal menghitung jadwal.</div>'; }
 }
-tampilSholat(); setInterval(tampilSholat, 60*1000);
+
+window.initializeDashboardApp = function initializeDashboardApp() {
+  if (dashboardInitPromise) return dashboardInitPromise;
+
+  dashboardInitPromise = (async () => {
+    if (localStorage.getItem('versi') !== '3') {
+      localStorage.removeItem('statusKipas');
+      localStorage.removeItem('alarmWaktu');
+      localStorage.removeItem('alarmSkipDate');
+      localStorage.setItem('versi', '3');
+    }
+
+    const savedLampu = localStorage.getItem('statusLampu');
+    if (savedLampu) setLampuUI(savedLampu);
+
+    if (localStorage.getItem('statusKipas') === null) {
+      localStorage.setItem('statusKipas', 'ON');
+      isInitialKipasSetup = true;
+    }
+    setKipasStatus(localStorage.getItem('statusKipas'), false);
+
+    renderSchedules();
+    updateNextAlarm();
+
+    const savedAlarm = localStorage.getItem('alarmWaktu');
+    if (savedAlarm) syncAlarmUI(savedAlarm, true);
+
+    updateJam();
+    setInterval(updateJam, 1000);
+
+    ambilCuaca();
+    setInterval(ambilCuaca, 10 * 60 * 1000);
+
+    tampilSholat();
+    setInterval(tampilSholat, 60 * 1000);
+
+    try {
+      await ensureMqttLoaded();
+
+      const broker = 'wss://276d9e54084e4a99b7b863492b06212b.s1.eu.hivemq.cloud:8884/mqtt';
+      const options = { username: 'Rafifirdaus', password: '@Gresik123', clientId: 'webClient_' + Math.random().toString(16).substr(2, 8) };
+      const allBtns = ['btn-on','btn-off','btn-kipas-on','btn-kipas-off','btn-set','btn-nonaktif'];
+
+      client = mqtt.connect(broker, options);
+      client.on('connect', () => {
+        allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; });
+        client.subscribe('smartkos/status');
+        if (isInitialKipasSetup) {
+          client.publish('smartkos/kipas', 'ON');
+          isInitialKipasSetup = false;
+        }
+        updateNextAlarm();
+      });
+      client.on('disconnect', () => {
+        allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; });
+      });
+      client.on('error', () => {
+        allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; });
+      });
+      client.on('message', (topic, message) => {
+        if (topic !== 'smartkos/status') return;
+        const statusAlarm = message.toString();
+        if (statusAlarm === 'ALARM_HOME_BUNYI') {
+          setKipasStatus('OFF', true);
+        } else if (statusAlarm === 'ALARM_SCH_BUNYI') {
+          setKipasStatus('ON', true);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  })();
+
+  return dashboardInitPromise;
+};
+
+if (window.__bootDashboard) {
+  window.initializeDashboardApp();
+}
 </script>
 </body>
 </html>
