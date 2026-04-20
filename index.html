@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Smart Kos Dashboard</title>
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -374,14 +374,14 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 
 </div><!-- end #app-shell -->
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     FIREBASE AUTH â€” ganti firebaseConfig dengan milikmu
-     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<!-- ═══════════════════════════════════════════════════
+     FIREBASE AUTH — ganti firebaseConfig dengan milikmu
+     ═══════════════════════════════════════════════════ -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-  // âš ï¸  GANTI dengan config Firebase project kamu
+  // ⚠️  GANTI dengan config Firebase project kamu
   const firebaseConfig = {
     apiKey: "AIzaSyCniLIgUlE3jM3WVQUk-AUR-_d9Q-2ctXc",
     authDomain: "smartkos-cb3ac.firebaseapp.com",
@@ -395,13 +395,11 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const SESSION_HINT_KEY = 'smartkos_has_session';
 
   // Expose logout ke window agar bisa dipanggil dari onclick
   window.logoutUser = async () => {
     if (!confirm('Yakin ingin keluar?')) return;
     try {
-      localStorage.removeItem(SESSION_HINT_KEY);
       await signOut(auth);
       // Setelah ini, onAuthStateChanged akan otomatis mendeteksi status null 
       // dan mengarahkan ke login.html
@@ -410,19 +408,13 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
     }
   };
 
-  if (!localStorage.getItem(SESSION_HINT_KEY)) {
-    window.location.replace('login.html');
-  }
-
-  // â”€â”€ Auth Guard â”€â”€
+  // ── Auth Guard ──
   onAuthStateChanged(auth, (user) => {
     const guard = document.getElementById('auth-guard');
     const shell = document.getElementById('app-shell');
 
     if (user) {
-      localStorage.setItem(SESSION_HINT_KEY, '1');
-
-      // âœ… User login â€” tampilkan app, sembunyikan guard
+      // ✅ User login — tampilkan app, sembunyikan guard
       if (guard) guard.style.display = 'none';
       if (shell) shell.style.display = 'block';
 
@@ -436,27 +428,18 @@ input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:p
       if (userDisplay) userDisplay.innerText = displayName;
       if (emailChip) emailChip.innerText = email;
 
-      if (typeof window.initializeDashboardApp === 'function') {
-        window.initializeDashboardApp();
-      } else {
-        window.__bootDashboard = true;
-      }
     } else {
-      localStorage.removeItem(SESSION_HINT_KEY);
-      // âŒ Tidak ada sesi â€” langsung redirect
+      // ❌ Tidak ada sesi — langsung redirect
       window.location.replace('login.html'); 
       // Pakai .replace agar user tidak bisa klik "Back" kembali ke dashboard
     }
   });
 </script>
 
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+<!-- ═══════════════════════════════════════════════
      APP LOGIC (sama seperti sebelumnya)
-     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+     ═══════════════════════════════════════════════ -->
 <script>
-let client = null;
-let dashboardInitPromise = null;
-
 function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -486,13 +469,13 @@ function setKipasStatus(state, save) {
   if (save) localStorage.setItem('statusKipas', s);
 }
 function kirimLampu(state) {
-  if (!client || !client.connected) { alert('Koneksi terputus.'); return; }
+  if (!client.connected) { alert('Koneksi terputus.'); return; }
   client.publish('smartkos/lampu', state);
   localStorage.setItem('statusLampu', state);
   setLampuUI(state);
 }
 function kirimKipas(state) {
-  if (!client || !client.connected) { alert('Koneksi terputus.'); return; }
+  if (!client.connected) { alert('Koneksi terputus.'); return; }
   client.publish('smartkos/kipas', state);
   setKipasStatus(state, true);
 }
@@ -502,7 +485,7 @@ function syncAlarmUI(waktu, isActive) {
   const inputEl = document.getElementById('waktu-alarm');
   if (isActive && waktu) {
     if (dotEl) dotEl.className = 'alarm-ring-dot aktif';
-    if (textEl) textEl.innerText = 'Aktif Â· ' + waktu + ' WIB';
+    if (textEl) textEl.innerText = 'Aktif · ' + waktu + ' WIB';
     if (inputEl) inputEl.value = waktu;
   } else {
     if (dotEl) dotEl.className = 'alarm-ring-dot';
@@ -512,13 +495,13 @@ function syncAlarmUI(waktu, isActive) {
 function setAlarm(silent = false) {
   const waktu = document.getElementById('waktu-alarm').value;
   if (!waktu) { if(!silent) alert('Silakan pilih waktu alarm'); return; }
-  if (!client || !client.connected) { if(!silent) alert('Koneksi terputus.'); return; }
+  if (typeof client === 'undefined' || !client.connected) { if(!silent) alert('Koneksi terputus.'); return; }
   client.publish('smartkos/alarm', "HOME_" + waktu);
   localStorage.setItem('alarmWaktu', waktu);
   syncAlarmUI(waktu, true);
 }
 function nonaktifkanAlarm(silent = false) {
-  if (!client || !client.connected) { if(!silent) alert('Koneksi terputus.'); return; }
+  if (typeof client === 'undefined' || !client.connected) { if(!silent) alert('Koneksi terputus.'); return; }
   client.publish('smartkos/alarm', 'HOME_OFF');
   localStorage.removeItem('alarmWaktu');
   syncAlarmUI(null, false);
@@ -570,7 +553,7 @@ function updateNextAlarm() {
   if (activeSchedules.length === 0) {
     if (heroTime) heroTime.innerHTML = '--:--<span class="ampm">WIB</span>';
     if (heroStatus) heroStatus.innerHTML = '<span class="material-symbols-outlined mat-filled" style="font-size:14px">info</span><span>Belum ada jadwal aktif</span>';
-    if (client && client.connected) client.publish('smartkos/alarm', 'SCH_OFF');
+    if (typeof client !== 'undefined' && client.connected) client.publish('smartkos/alarm', 'SCH_OFF');
     return;
   }
   const now = new Date();
@@ -579,8 +562,38 @@ function updateNextAlarm() {
   if (!nextAlarm) nextAlarm = activeSchedules[0];
   if (heroTime) heroTime.innerHTML = nextAlarm.time + '<span class="ampm">WIB</span>';
   if (heroStatus) heroStatus.innerHTML = '<span class="material-symbols-outlined mat-filled" style="font-size:14px;color:var(--tertiary)">check_circle</span><span style="color:var(--tertiary)">Alarm Aktif</span>';
-  if (client && client.connected) client.publish('smartkos/alarm', "SCH_" + nextAlarm.time);
+  if (typeof client !== 'undefined' && client.connected) client.publish('smartkos/alarm', "SCH_" + nextAlarm.time);
 }
+
+// Init LocalStorage
+if (localStorage.getItem('versi') !== '3') { localStorage.removeItem('statusKipas'); localStorage.removeItem('alarmWaktu'); localStorage.removeItem('alarmSkipDate'); localStorage.setItem('versi', '3'); }
+const savedLampu = localStorage.getItem('statusLampu');
+if (savedLampu) setLampuUI(savedLampu);
+if (localStorage.getItem('statusKipas') === null) { localStorage.setItem('statusKipas', 'ON'); isInitialKipasSetup = true; }
+setKipasStatus(localStorage.getItem('statusKipas'), false);
+
+// MQTT
+const broker = 'wss://276d9e54084e4a99b7b863492b06212b.s1.eu.hivemq.cloud:8884/mqtt';
+const options = { username: 'Rafifirdaus', password: '@Gresik123', clientId: 'webClient_' + Math.random().toString(16).substr(2, 8) };
+const client = mqtt.connect(broker, options);
+const allBtns = ['btn-on','btn-off','btn-kipas-on','btn-kipas-off','btn-set','btn-nonaktif'];
+client.on('connect', () => {
+  allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; });
+  client.subscribe('smartkos/status');
+  if (isInitialKipasSetup) { client.publish('smartkos/kipas', 'ON'); isInitialKipasSetup = false; }
+});
+client.on('disconnect', () => { allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; }); });
+client.on('error', () => { allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; }); });
+client.on('message', (topic, message) => {
+  if (topic !== 'smartkos/status') return;
+  const statusAlarm = message.toString();
+  if (statusAlarm === 'ALARM_HOME_BUNYI') { setKipasStatus('OFF', true); }
+  else if (statusAlarm === 'ALARM_SCH_BUNYI') { setKipasStatus('ON', true); }
+});
+
+renderSchedules(); updateNextAlarm();
+const savedAlarm = localStorage.getItem('alarmWaktu');
+if (savedAlarm) { syncAlarmUI(savedAlarm, true); }
 
 // Clock
 let prevDigits = ['','','','','',''];
@@ -598,19 +611,20 @@ function updateJam() {
   const tgl = new Intl.DateTimeFormat('id-ID', { timeZone:'Asia/Jakarta', weekday:'long', day:'numeric', month:'long', year:'numeric' }).format(now);
   document.getElementById('tanggal').innerText = tgl;
 }
+setInterval(updateJam, 1000); updateJam();
 
 // Weather
 const WEATHER_KEY = 'fcf807bd760344b5a57124817261204';
 const CUACA_URL = 'https://api.weatherapi.com/v1/current.json?key=' + WEATHER_KEY + '&q=Surabaya&lang=id';
 function weatherIcon(code, isDay) {
-  if (code === 1000) return isDay ? 'â˜€ï¸' : 'ðŸŒ™';
-  if (code === 1003) return 'â›…';
-  if ([1006,1009].includes(code)) return 'â˜ï¸';
-  if ([1030,1135,1147].includes(code)) return 'ðŸŒ«ï¸';
-  if ([1063,1150,1153,1168,1171,1180,1183].includes(code)) return 'ðŸŒ¦ï¸';
-  if ([1186,1189,1192,1195,1198,1201,1240,1243,1246].includes(code)) return 'ðŸŒ§ï¸';
-  if ([1087,1273,1276,1279,1282].includes(code)) return 'â›ˆï¸';
-  return 'ðŸŒ¡ï¸';
+  if (code === 1000) return isDay ? '☀️' : '🌙';
+  if (code === 1003) return '⛅';
+  if ([1006,1009].includes(code)) return '☁️';
+  if ([1030,1135,1147].includes(code)) return '🌫️';
+  if ([1063,1150,1153,1168,1171,1180,1183].includes(code)) return '🌦️';
+  if ([1186,1189,1192,1195,1198,1201,1240,1243,1246].includes(code)) return '🌧️';
+  if ([1087,1273,1276,1279,1282].includes(code)) return '⛈️';
+  return '🌡️';
 }
 async function ambilCuaca() {
   const el = document.getElementById('cuaca-content');
@@ -629,11 +643,12 @@ async function ambilCuaca() {
     function windNote(w){return w>40?'Kencang':w>20?'Sedang':'Tenang';}
     function visNote(v){return v>8?'Cerah':v>4?'Sedang':'Kabur';}
     function feelsNote(f){return f>35?'Panas':f>28?'Hangat':'Sejuk';}
-    el.innerHTML = '<div class="weather-card"><div class="weather-top"><div class="weather-main"><span class="weather-icon">' + icon + '</span><div class="weather-temp">' + suhu + '<sup>Â°C</sup></div></div><div class="weather-info"><div class="weather-cond">' + kondisi + '</div><div class="weather-feels">Terasa ' + rasaSuhu + 'Â°C</div></div></div><div class="weather-grid"><div class="weather-stat"><span class="weather-stat-label">Humidity</span><span class="weather-stat-val">' + humidity + '%</span><span class="weather-stat-note">' + humidityNote(humidity) + '</span></div><div class="weather-stat"><span class="weather-stat-label">Angin</span><span class="weather-stat-val">' + angin + ' km/j</span><span class="weather-stat-note">' + windNote(angin) + '</span></div><div class="weather-stat"><span class="weather-stat-label">Visibility</span><span class="weather-stat-val">' + vis + ' km</span><span class="weather-stat-note">' + visNote(vis) + '</span></div><div class="weather-stat"><span class="weather-stat-label">Terasa</span><span class="weather-stat-val">' + rasaSuhu + 'Â°</span><span class="weather-stat-note">' + feelsNote(rasaSuhu) + '</span></div></div></div>';
+    el.innerHTML = '<div class="weather-card"><div class="weather-top"><div class="weather-main"><span class="weather-icon">' + icon + '</span><div class="weather-temp">' + suhu + '<sup>°C</sup></div></div><div class="weather-info"><div class="weather-cond">' + kondisi + '</div><div class="weather-feels">Terasa ' + rasaSuhu + '°C</div></div></div><div class="weather-grid"><div class="weather-stat"><span class="weather-stat-label">Humidity</span><span class="weather-stat-val">' + humidity + '%</span><span class="weather-stat-note">' + humidityNote(humidity) + '</span></div><div class="weather-stat"><span class="weather-stat-label">Angin</span><span class="weather-stat-val">' + angin + ' km/j</span><span class="weather-stat-note">' + windNote(angin) + '</span></div><div class="weather-stat"><span class="weather-stat-label">Visibility</span><span class="weather-stat-val">' + vis + ' km</span><span class="weather-stat-note">' + visNote(vis) + '</span></div><div class="weather-stat"><span class="weather-stat-label">Terasa</span><span class="weather-stat-val">' + rasaSuhu + '°</span><span class="weather-stat-note">' + feelsNote(rasaSuhu) + '</span></div></div></div>';
   } catch (e) {
     el.innerHTML = '<div class="weather-loading" style="color:var(--error)">Gagal memuat cuaca.</div>';
   }
 }
+ambilCuaca(); setInterval(ambilCuaca, 10 * 60 * 1000);
 
 // Prayer Times
 let sholatData = [];
@@ -675,57 +690,7 @@ function tampilSholat() {
     el.innerHTML = '<div class="prayer-scroll">'+cards+'</div>';
   } catch(e) { el.innerHTML = '<div class="weather-loading" style="color:var(--error)">Gagal menghitung jadwal.</div>'; }
 }
-
-window.initializeDashboardApp = function initializeDashboardApp() {
-  if (dashboardInitPromise) return dashboardInitPromise;
-
-  dashboardInitPromise = (async () => {
-    if (localStorage.getItem('versi') !== '3') { localStorage.removeItem('statusKipas'); localStorage.removeItem('alarmWaktu'); localStorage.removeItem('alarmSkipDate'); localStorage.setItem('versi', '3'); }
-    const savedLampu = localStorage.getItem('statusLampu');
-    if (savedLampu) setLampuUI(savedLampu);
-    if (localStorage.getItem('statusKipas') === null) { localStorage.setItem('statusKipas', 'ON'); isInitialKipasSetup = true; }
-    setKipasStatus(localStorage.getItem('statusKipas'), false);
-
-    renderSchedules(); updateNextAlarm();
-    const savedAlarm = localStorage.getItem('alarmWaktu');
-    if (savedAlarm) { syncAlarmUI(savedAlarm, true); }
-
-    updateJam();
-    setInterval(updateJam, 1000);
-
-    ambilCuaca();
-    setInterval(ambilCuaca, 10 * 60 * 1000);
-
-    tampilSholat();
-    setInterval(tampilSholat, 60 * 1000);
-
-    const broker = 'wss://276d9e54084e4a99b7b863492b06212b.s1.eu.hivemq.cloud:8884/mqtt';
-    const options = { username: 'Rafifirdaus', password: '@Gresik123', clientId: 'webClient_' + Math.random().toString(16).substr(2, 8) };
-    const allBtns = ['btn-on','btn-off','btn-kipas-on','btn-kipas-off','btn-set','btn-nonaktif'];
-    client = mqtt.connect(broker, options);
-    client.on('connect', () => {
-      allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = false; });
-      client.subscribe('smartkos/status');
-      if (isInitialKipasSetup) { client.publish('smartkos/kipas', 'ON'); isInitialKipasSetup = false; }
-      updateNextAlarm();
-    });
-    client.on('disconnect', () => { allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; }); });
-    client.on('error', () => { allBtns.forEach(id => { const el = document.getElementById(id); if(el) el.disabled = true; }); });
-    client.on('message', (topic, message) => {
-      if (topic !== 'smartkos/status') return;
-      const statusAlarm = message.toString();
-      if (statusAlarm === 'ALARM_HOME_BUNYI') { setKipasStatus('OFF', true); }
-      else if (statusAlarm === 'ALARM_SCH_BUNYI') { setKipasStatus('ON', true); }
-    });
-  })();
-
-  return dashboardInitPromise;
-};
-
-if (window.__bootDashboard) {
-  window.initializeDashboardApp();
-}
+tampilSholat(); setInterval(tampilSholat, 60*1000);
 </script>
 </body>
 </html>
-
