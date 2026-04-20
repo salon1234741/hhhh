@@ -163,7 +163,7 @@
 </script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCniLIgUlE3jM3WVQUk-AUR-_d9Q-2ctXc",
@@ -178,6 +178,16 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const SESSION_HINT_KEY = 'smartkos_has_session';
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            localStorage.setItem(SESSION_HINT_KEY, '1');
+            window.location.replace("index.html");
+        } else {
+            localStorage.removeItem(SESSION_HINT_KEY);
+        }
+    });
 
     document.getElementById('loginForm').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -190,6 +200,7 @@
 
         signInWithEmailAndPassword(auth, email, pass)
             .then(() => {
+                localStorage.setItem(SESSION_HINT_KEY, '1');
                 window.location.href = "index.html"; 
             })
             .catch((error) => {
